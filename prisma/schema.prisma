@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  firstName    String
+  lastName     String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  improvements Improvement[]
+  plans        Plan[]
+  cards        Card[]
+}
+
+model Improvement {
+  id        Int      @id @default(autoincrement())
+  threadId  String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  url       String   @default("")
+  market    String   @default("")
+  audience  String   @default("")
+  insights  String   @default("")
+  createdAt DateTime @default(now())
+}
+
+model Plan {
+  id                      Int       @id @default(autoincrement())
+  sellerId                String
+  productId               String    @unique
+  productName             String
+  permalink               String
+  productPermalink        String
+  shortProductId          String
+  email                   String
+  price                   Int
+  gumroadFee              Int
+  currency                String
+  quantity                Int
+  discoverFeeCharged      Boolean
+  canContact              Boolean
+  referrer                String
+  renewsAt                DateTime?
+  orderNumber             Int
+  saleId                  String    @unique
+  saleTimestamp           DateTime
+  purchaserId             String
+  subscriptionId          String    @unique
+  variant                 String?
+  test                    Boolean
+  ipCountry               String
+  recurrence              String
+  isGiftReceiverPurchase  Boolean
+  isActive                Boolean   @default(false)
+  refunded                Boolean   @default(false)
+  disputed                Boolean   @default(false)
+  disputeWon              Boolean   @default(false)
+  userId                  String
+  user                    User      @relation(fields: [userId], references: [id])
+  cardId                  Int?
+  card                    Card?     @relation(fields: [cardId], references: [id])
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  canceledAt              DateTime?
+  subscriptionEndedAt     DateTime?
+  subscriptionRestartedAt DateTime?
+  subscriptionRefundedAt  DateTime?
+}
+
+model Card {
+  id          Int    @id @default(autoincrement())
+  visual      String
+  type        String
+  bin         String
+  expiryMonth String
+  expiryYear  String
+  userId      String
+  user        User   @relation(fields: [userId], references: [id])
+  plans       Plan[]
+
+  @@unique([bin, userId])
+}
