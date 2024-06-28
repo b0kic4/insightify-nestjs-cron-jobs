@@ -1,32 +1,41 @@
 import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from 'src/prisma.service';
+import { RabbitMQPublisherService } from 'src/rabbit-mq/rabbit-mq.service';
 
 @Injectable()
 export class ImprovementsTasksService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly rabbitMQPublisherService: RabbitMQPublisherService,
+  ) {}
 
-  // Schedule the job to run at the top of every hour
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_SECOND)
   async deleteOldImprovements() {
     const now = new Date();
-    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-    // Find improvements older than 24 hours
     const improvements = await this.prisma.improvement.findMany({
       where: {
-        createdAt: {
-          lte: twentyFourHoursAgo, // lte means "less than or equal to"
-        },
+        id: 139,
+        // createdAt: {
+        //   lte: yesterday,
+        // },
       },
     });
 
-    // Delete each improvement found
     for (const improvement of improvements) {
-      await this.prisma.improvement.delete({
-        where: { id: improvement.id },
-      });
+      // await this.prisma.improvement.delete({
+      //   where: { id: improvement.id },
+      // });
       console.log(`Deleted improvement with ID: ${improvement.id}`);
+      await this.rabbitMQPublisherService.publishNotification(
+        'improvement.deleted',
+        {
+          userId: improvement.userId,
+          message: `Improvement with ID ${improvement.id} was deleted.`,
+        },
+      );
     }
   }
 }

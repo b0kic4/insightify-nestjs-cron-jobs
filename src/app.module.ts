@@ -5,10 +5,17 @@ import { ImprovementsTasksModule } from './improvements-tasks/improvements-tasks
 import { PrismaService } from './prisma.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PlanTasksModule } from './plan-tasks/plan-tasks.module';
+import { RabbitMQConfigModule } from './rabbit-mq/rabbit-mq.module';
+import { NotificationsService } from './notifications.service';
 
 @Module({
-  imports: [ScheduleModule.forRoot(), ImprovementsTasksModule, PlanTasksModule],
+  imports: [
+    ScheduleModule.forRoot(),
+    ImprovementsTasksModule,
+    PlanTasksModule,
+    RabbitMQConfigModule,
+  ],
   controllers: [AppController],
-  providers: [AppService, PrismaService],
+  providers: [AppService, PrismaService, NotificationsService],
 })
 export class AppModule {}
