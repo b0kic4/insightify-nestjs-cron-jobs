@@ -10,24 +10,23 @@ export class ImprovementsTasksService {
     private readonly rabbitMQPublisherService: RabbitMQPublisherService,
   ) {}
 
-  @Cron(CronExpression.EVERY_SECOND)
+  @Cron(CronExpression.EVERY_HOUR)
   async deleteOldImprovements() {
     const now = new Date();
     const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
     const improvements = await this.prisma.improvement.findMany({
       where: {
-        id: 139,
-        // createdAt: {
-        //   lte: yesterday,
-        // },
+        createdAt: {
+          lte: yesterday,
+        },
       },
     });
 
     for (const improvement of improvements) {
-      // await this.prisma.improvement.delete({
-      //   where: { id: improvement.id },
-      // });
+      await this.prisma.improvement.delete({
+        where: { id: improvement.id },
+      });
       console.log(`Deleted improvement with ID: ${improvement.id}`);
       await this.rabbitMQPublisherService.publishNotification(
         'improvement.deleted',
