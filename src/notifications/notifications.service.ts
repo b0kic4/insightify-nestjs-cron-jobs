@@ -12,11 +12,26 @@ export class NotificationsService {
       this.subscribers[userId] = [];
     }
     this.subscribers[userId].push(subscriber);
+    console.log(`User ${userId} subscribed`);
+  }
+
+  unsubscribe(userId: string, subscriber: Subscriber) {
+    if (this.subscribers[userId]) {
+      this.subscribers[userId] = this.subscribers[userId].filter(
+        (sub) => sub !== subscriber,
+      );
+      console.log(`User ${userId} unsubscribed`);
+    }
   }
 
   notifySubscribers(userId: string, event: any) {
     if (this.subscribers[userId]) {
-      this.subscribers[userId].forEach((subscriber) => subscriber(event));
+      this.subscribers[userId].forEach((subscriber) => {
+        console.log(
+          `Notifying user ${userId} of event: ${JSON.stringify(event)}`,
+        );
+        subscriber(event);
+      });
     }
   }
 
