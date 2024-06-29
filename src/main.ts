@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as express from 'express';
 
 async function bootstrap() {
@@ -12,7 +13,11 @@ async function bootstrap() {
   });
   app.use(express.json({ limit: '50mb' }));
 
-  const port = process.env.PORT || 5000;
+  // Create an instance of the ConfigService
+  const configService = app.get(ConfigService);
+
+  // Retrieve the port from configuration, default to 5000 if not set
+  const port = configService.get<string>('PORT') || 5000;
 
   // Use global validation pipe
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
