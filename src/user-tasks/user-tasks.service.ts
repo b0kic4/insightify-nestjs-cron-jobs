@@ -30,6 +30,7 @@ export class UserTasksService {
         },
         data: {
           daily_free_improvements: 2,
+          free_improvement_lastTime_used: null,
         },
       });
 
