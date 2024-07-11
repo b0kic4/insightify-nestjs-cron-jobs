@@ -10,7 +10,7 @@ export class ImprovementsTasksService {
     private readonly rabbitMQPublisherService: RabbitMQPublisherService,
   ) {}
 
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_6_HOURS)
   async deleteOldImprovements() {
     const now = new Date();
     const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
